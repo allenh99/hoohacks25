@@ -18,14 +18,15 @@ chrome.runtime.onInstalled.addListener(() => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ tweet: selectedText })
+        body: JSON.stringify({ text: selectedText })
       })
       .then(response => response.json())
       .then(data => {
         chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: (responseText) => {
-            alert("API response: " + responseText);
+            //alert("API response: " + responseText);
+            console.log("API response: " + responseText);
           },
           args: [JSON.stringify(data)]
         });

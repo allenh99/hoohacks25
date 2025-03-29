@@ -2,19 +2,18 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/api/analyze', methods=['POST'])
+@app.route('/api/analyze/', methods=['POST'])
 def analyze():
     if not request.is_json:
         return jsonify({"error": "Invalid input, expected JSON"}), 400
 
     data = request.get_json()
-    print(data)
+    textdata = data['text']
+    #print(textdata)
     response = {
-        "message": "Data received successfully",
-        "received_data": data,
-        "status": "processed"
+        "response": data['text'],
     }
-
+    #print(response)
     return jsonify(response), 200
 
 if __name__ == '__main__':
