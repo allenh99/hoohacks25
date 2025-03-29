@@ -1,17 +1,13 @@
 import os
 import numpy as np
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from openai import AzureOpenAI
+from google import genai
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class RAG:
     def __init__(self):
-        self.client = AzureOpenAI(
-            azure_endpoint = os.getenv("AZURE_OPENAI_API_ENDPOINT"),
-            api_key = os.getenv("AZURE_OPENAI_API_KEY"),  
-            api_version = os.getenv("AZURE_OPENAI_API_VERSION"),
-        )
-        self.embedding_model = 'gpt-4o'
+        self.client = genai.Client(api_key=os.getenv('GENAI_API_KEY'))
+        self.model = 'text-embedding-004'
 
     # RAG main function
     def generate_context(self, content, query, k=10, chunk_size = 512 , chunk_overlap = 256):
@@ -33,25 +29,13 @@ class RAG:
 
     def embed_texts(self, texts):
         def embed_query(text):
-            text = text.replace("\n", " ")
-            print(self.client.chat.completions.create(
-                model="text-embedding-ada-002",
-                messages=[
-                    {"role": "system", 'content': ''},
-                    {"role": "user", "content": text}
-                ],
-            ))
-            print(self.client.embeddings.create(input=[text], model='gpt-4o', encoding_format='float'))
-            embedding = self.client.embeddings.create(input = [text], model=self.embedding_model).data[0].embedding
-            print(embedding)    
+            embedding = self.client.models.embed_content(contents = [text], model=self.model)
             return embedding
 
         embeddings = []
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(embed_query, text): text for text in texts}
             for future in as_completed(futures):
-                print(future.result())
-                input()
                 embeddings.append(future.result())
         
         return np.array(embeddings)
