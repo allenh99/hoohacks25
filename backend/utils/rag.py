@@ -30,7 +30,7 @@ class RAG:
     def embed_texts(self, texts):
         def embed_query(text):
             embedding = self.client.models.embed_content(contents = [text], model=self.model)
-            return embedding
+            return embedding.embeddings[0].values
 
         embeddings = []
         with ThreadPoolExecutor(max_workers=10) as executor:
