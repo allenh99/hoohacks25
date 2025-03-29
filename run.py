@@ -21,4 +21,4 @@ def main(claim):
     context = context[:10000]
     
     label = classify_claim(claim, context)
-    return label, links
+    return label, list(links)
