@@ -3,6 +3,9 @@
     "name": "Highlight Sender with React",
     "version": "1.0",
     "description": "Send highlighted text to a backend API",
+    "action": {
+      "default_popup": "index.html"
+    },
     "permissions": ["storage", "contextMenus", "scripting", "activeTab"],
     "background": {
       "service_worker": "background.js"
