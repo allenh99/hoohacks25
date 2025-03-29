@@ -9,4 +9,5 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.onClicked.addListener((info, tab) => {
     console.log("TEST")
     console.log(info.selectionText);
+    
   });
