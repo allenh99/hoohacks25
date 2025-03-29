@@ -11,6 +11,7 @@ class Scraper:
         self.visited = {}
 
     def scrape(self, url, min_load=100, names=False):
+        if url in self.visited: return self.visited[url]
         url = self.clean_url(url)
 
         if not url:
@@ -23,10 +24,11 @@ class Scraper:
         if re.search('enable javascript', ''.join([s.lower() for s in text])) or len(''.join(text)) < min_load:
             print('Using selenium on', url)
             text = self.selenium_scrape(url, text_format=True)
-
+        
+        
+        text = '. '.join([i for i in self.remove_junk(text, names) if i])
         self.visited[url] = text
-
-        return [i for i in self.remove_junk(text, names) if i]
+        return text
 
     def requests_scrape(self, url, text_format=False, retries=3):
         while retries > 0:
