@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/api/analyze/', methods=['POST'])
 def analyze():
-    print(request)
+    #print(request)
     if not request.is_json:
         return jsonify({"error": "Invalid input, expected JSON"}), 400
 
