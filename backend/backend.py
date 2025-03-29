@@ -4,12 +4,13 @@ app = Flask(__name__)
 
 @app.route('/api/analyze/', methods=['POST'])
 def analyze():
+    print(request)
     if not request.is_json:
         return jsonify({"error": "Invalid input, expected JSON"}), 400
 
     data = request.get_json()
     textdata = data['text']
-    #print(textdata)
+    print(textdata)
     response = {
         "response": data['text'],
     }
