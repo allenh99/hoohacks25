@@ -2,11 +2,12 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from utils.chatbot_helper import *
-from utils.search_links import *
-from utils.scraper import *
+from .chatbot_helper import *
+from .search_links import *
+from .scraper import *
+from .rag import *
 
-def main(claim):
+def main(claim, rag=False):
     queries = generate_queries(claim)
 
     links = set()
@@ -18,7 +19,12 @@ def main(claim):
     context = ''
     for l in links:
         context += s.scrape(l)
-    context = context[:10000]
+
+    r = RAG()
+
+    context = context[:50000]
+    if rag:
+        context = r.generate_context(context, claim)
     
     label = classify_claim(claim, context)
     return label, list(links)
