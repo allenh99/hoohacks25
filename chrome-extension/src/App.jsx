@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./popup.css";
+import React from 'react'
 
 function App() {
   const [highlighted, setHighlighted] = useState("");
@@ -10,6 +11,10 @@ function App() {
       const text = result.highlightedText;
       setHighlighted(text);
 
+      // const text = result.highlightedText;
+      // setHighlighted(text);
+      console.log("🔍 Highlighted text retrieved:", text);
+      alert("RECIEVED IN APP.JSX");
       if (text) {
         try {
           const res = await fetch("http://127.0.0.1:8000/api/analyze/", {
