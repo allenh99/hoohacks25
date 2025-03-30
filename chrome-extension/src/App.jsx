@@ -6,13 +6,14 @@ import WeightToggle from "./WeightToggle";
 function App() {
   const [highlighted, setHighlighted] = useState("");
   const [result, setResult] = useState("");
-  const [typedResult, setTypedResult] = useState("");
+  const [typedTitle, setTypedTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [weight, setWeight] = useState("light");
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const word = "Result:"
+  const word = "Result:";
+  const title = "Facts Analyzer";
 
   useEffect(() => {
     if (chrome?.storage?.local) {
@@ -20,6 +21,22 @@ function App() {
         setHighlighted(result.highlightedText || "");
       });
     }
+  }, []);
+
+  useEffect(() => {
+    let i = 0;
+    let message="";
+    const interval = setInterval(() => {
+      if (i >= title.length) {
+        clearInterval(interval);
+        return;
+      }
+      message += title[i];
+      setTypedTitle(message);
+      i++;
+    }, 125);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -39,8 +56,9 @@ function App() {
           })
         });
         const data = await res.json();
+        console.log(data);
         //setResult(JSON.stringify(data, null, 2));
-        setResult(data.response || "No response");
+        setResult(data || "No response");
       } catch (err) {
         setResult("Error fetching from backend.");
         //console.log("ERROR:", err);
@@ -50,28 +68,6 @@ function App() {
 
     analyze(); //call fetch function
   }, [highlighted]);
-
-  useEffect(() => {
-    if (!result) return;
-
-    setTypedResult("");
-    let i = 0;
-    let message="";
-    const interval = setInterval(() => {
-      if (i >= result.length) {
-        clearInterval(interval);
-        return;
-      }
-      message += result[i];
-      setTypedResult(message);
-      //setTypedResult((prev) => prev + result.charAt(i));
-      //console.log("I:", i, result.charAt(i));
-      i++;
-    }, 30);
-
-    return () => clearInterval(interval);
-  }, [result]);
-
 
   function LoadingDots() {
     const [dotCount, setDotCount] = useState(0);
@@ -94,7 +90,7 @@ function App() {
 
   return (
     <div className="w-[800px] h-[500px] max-w-full p-4 font-sans text-sm text-gray-800 bg-white">
-      <h1 className="text-lg font-semibold mb-2 text-blue-700">Facts Analyzer</h1>
+      <h1 className="text-lg font-semibold mb-2 text-blue-700">{typedTitle}</h1>
 
       <div className="flex items-center justify-center w-full">
         <WeightToggle onChange={setWeight} />
@@ -109,22 +105,40 @@ function App() {
 
       {loading && <LoadingDots />}
 
-      {typedResult && !loading && (
-        <div className="border-t pt-3 mt-2">
-          <h2 className="text-sm font-medium text-green-700 flex items-center gap-1">
-            {word.split("").map((char, i) => (
-            <span
-              key={i}
-              className={`inline-block animate-bounce-loop`}
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              {char}
-            </span>
-            ))}          
-          </h2>
-          <p className="mt-2 bg-green-50 text-green-900 p-3 rounded text-sm">
-            {typedResult}
-          </p>
+      {result && !loading &&(
+        <div className="mt-4 space-y-3 text-sm text-gray-800">
+          <div className="text-lg font-semibold text-blue-700">
+            Label: <span className="text-black">{result.label}</span>
+          </div>
+      
+          <div>
+            <p className="font-medium text-gray-600">Ratings:</p>
+            <ul className="list-disc pl-5 text-gray-700">
+              {result.ratings.map((rating, i) => (
+                <li key={i}>{rating}</li>
+              ))}
+            </ul>
+          </div>
+      
+          <div>
+            <p className="font-medium text-gray-600">Analysis:</p>
+            <ul className="list-disc pl-5 text-gray-700">
+              {result.analysis.map((point, i) => (
+                <li key={i}>{point}</li>
+              ))}
+            </ul>
+          </div>
+      
+          <div>
+            <p className="font-medium text-gray-600">Sources:</p>
+            <ul className="list-disc pl-5 text-blue-600 underline">
+              {result.sources.map((url, i) => (
+                <li key={i}>
+                  <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
     </div>

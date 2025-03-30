@@ -25,8 +25,9 @@ def generate_links(query, num_links):
 
 def verify_sources(claim, urls):
     c = Chatbot()
+    urls_join = '\n'.join(urls)
     CONTEXT = f'You are an LLM that helps verify the legitimacy of certain sources.'
-    PROMPT = f'Given the following urls: {', '.join(urls)}, rank them based on their legitimacy and relevance on a scale of 1 to 10 on the following claim: {claim}. Please put the ratings in the format:\n**Legitimacy: 8**\n**Relevance: 9**\n\n Make sure to rate every link provided.'
+    PROMPT = f'You are an expert researcher who is looking to answer this query: "{claim}". Given these sources as links:\n\n{urls_join}\n\nCan you rank them based on legitimacy of the source, and relevance to the query, and output a string with each link, its legitimacy, and relevance like this:\n\n**link**\n**Legitimacy: 8**\n**Relevance: 7**'
 
     retrieved_urls = []
     legitimacy_ratings = []
