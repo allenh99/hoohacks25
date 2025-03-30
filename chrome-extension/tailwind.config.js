@@ -3,8 +3,15 @@ export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
+      keyframes: {
+        'bounce-delay': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '5%': { transform: 'translateY(-10px)' },
+          '10%': { transform: 'translateY(0)' }
+        }
+      },
       animation: {
-        'bounce-slow': 'bounce 2s infinite',
+        'bounce-loop': 'bounce-delay 8s ease-in-out infinite',
       }
     },
   },

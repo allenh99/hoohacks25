@@ -82,7 +82,7 @@ function App() {
             {word.split("").map((char, i) => (
             <span
               key={i}
-              className={`inline-block animate-bounce`}
+              className={`inline-block animate-bounce-loop`}
               style={{ animationDelay: `${i * 100}ms` }}
             >
               {char}
