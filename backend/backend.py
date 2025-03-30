@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/api/analyze', methods=['POST'])
+@app.route('/api/analyze/', methods=['POST'])
 def analyze():
     if not request.is_json:
         return jsonify({"error": "Invalid input, expected JSON"}), 400
