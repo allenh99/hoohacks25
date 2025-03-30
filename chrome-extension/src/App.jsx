@@ -11,10 +11,11 @@ function App() {
   const [weight, setWeight] = useState("light");
   const [openDropdowns, setOpenDropdowns] = useState([]);
   const [submitted, setSubmitted] = useState(false);
+  const [prevData, setPrevData] = useState(false);
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const title = "Facts Analyzer";
+  const title = "CheckMate";
 
   useEffect(() => {
     if (chrome?.storage?.local) {
@@ -40,12 +41,22 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    chrome.storage.local.get(["prevData"], (result) => {
+      if (result.prevData) {
+        setPrevData(true);
+        setResult(result.prevData);
+      }
+    });
+  }, []);
+
   // useEffect(() => {
   //   if (!highlighted) return;
 
   const analyze = async () => {
     setSubmitted(true);
     setLoading(true);
+    setPrevData(false);
     await sleep(5000); // for testing loading animation
 
     try {
@@ -61,6 +72,7 @@ function App() {
       console.log(data);
       //setResult(JSON.stringify(data, null, 2));
       setResult(data || "No response");
+      chrome.storage.local.set({ prevData: data });
     } catch (err) {
       setResult("Error fetching from backend.");
       //console.log("ERROR:", err);
@@ -96,15 +108,15 @@ function App() {
     }, []);
   
     return (
-      <span className="text-blue-500 font-medium tracking-wide">
+      <span className="text-emerald-600 font-medium tracking-wide">
         Analyzing{dotStates[dotCount]}
       </span>
     );
   }
 
   return (
-    <div className="w-[800px] h-[500px] max-w-full p-4 font-sans text-sm text-gray-800 bg-white">
-      <h1 className="text-lg font-semibold mb-2 text-blue-700">{typedTitle}</h1>
+    <div className={`w-[1000px] ${submitted || prevData ? "h-[500px]" : "h-[300px]"} max-w-full p-4 font-sans text-sm text-gray-800 bg-white`}>
+      <h1 className="text-lg font-semibold mb-2 text-green-600">{typedTitle}</h1>
 
       <div className="flex items-center justify-center w-full">
         <WeightToggle onChange={setWeight} />
@@ -120,18 +132,16 @@ function App() {
       {!submitted && (
         <button
           onClick={analyze}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 transition duration-200 w-full font-medium text-sm mb-4"
+          className="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600 transition duration-200 w-full font-medium text-sm mb-4"
         >
           Analyze
         </button>
       )}
 
-      {loading && <LoadingDots />}
-
-      {result && !loading &&(
+      {prevData && (
         <div className="mt-4">      
-          Results:  
-          <div className="flex flex-wrap items-center justify-center bg-blue-100 border border-blue-300 text-blue-800 p-3 rounded-md mb-4 text-sm font-semibold">
+          Past Results:  
+          <div className="flex flex-wrap items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 p-3 rounded-md mb-4 text-sm font-semibold">
             {result.label.split("").map((char, i) => (
               <span
                 key={i}
@@ -150,7 +160,60 @@ function App() {
                 className="rounded-xl bg-white shadow-md p-4 border border-gray-200 text-sm"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-blue-600 font-semibold underline">
+                  <h3 className="text-green-500 font-semibold underline">
+                    <a
+                      href={result.sources[i]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Source {i + 1}
+                    </a>
+                  </h3>
+                  <button onClick={() => toggleDropdown(i)}>
+                    {openDropdowns[i] ? "Less": "More"}
+                  </button>
+                </div>
+
+                <p className="mb-1">
+                  <span className="font-medium text-gray-600">Rating:</span>{" "}
+                  {rating}/10
+                </p>
+
+                {openDropdowns[i] && (<p className="mb-1">
+                    {result.analysis[i]}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {loading && <LoadingDots />}
+
+      {result && !loading && !prevData && (
+        <div className="mt-4">      
+          Results:  
+          <div className="flex flex-wrap items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 p-3 rounded-md mb-4 text-sm font-semibold">
+            {result.label.split("").map((char, i) => (
+              <span
+                key={i}
+                className="inline-block animate-bounce-loop"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                {char}
+              </span>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {result.ratings.map((rating, i) => (
+              <div
+                key={i}
+                className="rounded-xl bg-white shadow-md p-4 border border-gray-200 text-sm"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-green-500 font-semibold underline">
                     <a
                       href={result.sources[i]}
                       target="_blank"
@@ -180,7 +243,6 @@ function App() {
                 </p> */}
 
                 {openDropdowns[i] && (<p className="mb-1">
-                  <span className="font-medium text-gray-600">Analysis:</span>{" "}
                     {result.analysis[i]}
                   </p>
                 )}

@@ -18,7 +18,7 @@ export default function WeightToggle({ onChange }) {
       <div className="flex bg-gray-200 rounded-full p-1 text-sm font-medium text-gray-600 justify-between relative">
         {/* Sliding highlight */}
         <div
-          className="absolute top-1 left-1 h-8 w-1/3 bg-blue-500 rounded-full transition-all duration-300"
+          className="absolute top-1 left-1 h-8 w-1/3 bg-emerald-600 rounded-full transition-all duration-300"
           style={{ transform: `translateX(${selectedIndex * 100}%)` }}
         ></div>
 
