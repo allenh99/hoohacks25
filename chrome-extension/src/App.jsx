@@ -7,6 +7,8 @@ function App() {
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const word = "Result:"
+
   useEffect(() => {
     if (chrome?.storage?.local) {
       chrome.storage.local.get(["highlightedText"], (result) => {
@@ -27,10 +29,11 @@ function App() {
           body: JSON.stringify({ text: highlighted })
         });
         const data = await res.json();
-        setResult(JSON.stringify(data, null, 2));
+        //setResult(JSON.stringify(data, null, 2));
+        setResult(data.response || "No response");
       } catch (err) {
         setResult("Error fetching from backend.");
-        console.log("ERROR:", err);
+        //console.log("ERROR:", err);
       }
       setLoading(false);
     };
@@ -53,12 +56,22 @@ function App() {
 
       {loading && <p className="text-xs text-blue-600">Analyzing...</p>}
 
-      {result && (
-        <div className="mt-3">
-          <p className="text-xs text-gray-500 mb-1">API Response:</p>
-          <pre className="bg-gray-100 text-gray-700 p-2 rounded text-xs max-h-[120px] overflow-y-auto">
+      {result && !loading && (
+        <div className="border-t pt-3 mt-2">
+          <h2 className="text-sm font-medium text-green-700 flex items-center gap-1">
+            {word.split("").map((char, i) => (
+            <span
+              key={i}
+              className={`inline-block animate-bounce`}
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              {char}
+            </span>
+            ))}          
+          </h2>
+          <p className="mt-2 bg-green-50 text-green-900 p-3 rounded text-sm">
             {result}
-          </pre>
+          </p>
         </div>
       )}
     </div>
