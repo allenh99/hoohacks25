@@ -10,10 +10,10 @@ def analyze():
         return jsonify({"error": "Invalid input, expected JSON"}), 400
     
     data = request.get_json()
-    textdata = data['text']
+    textdata,weight = data['text'],data['weight']
     if textdata is None:
         return jsonify({"error": "Missing 'text' field"})
-    label,sources,analysis,ratings = run.main(textdata)
+    label,sources,analysis,ratings = run.main(textdata,weight)
     response = {
         "label": label,
         "sources":sources,
