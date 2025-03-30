@@ -20,13 +20,17 @@ def generate_links(query, num_links):
     links = []
     response = c.response(PROMPT, CONTEXT)
     for r in response.split('\n'):
-        if r: links.append(r)
+        for split_r in r.split():
+            if re.search('http', split_r, re.IGNORECASE):
+                links.append(split_r)
+                break
     return links
 
 def verify_sources(claim, urls):
     c = Chatbot()
+    urls_join = '\n'.join(urls)
     CONTEXT = f'You are an LLM that helps verify the legitimacy of certain sources.'
-    PROMPT = f'Given the following urls: {', '.join(urls)}, rank them based on their legitimacy and relevance on a scale of 1 to 10 on the following claim: {claim}. Please put the ratings in the format:\n**Legitimacy: 8**\n**Relevance: 9**\n\n Make sure to rate every link provided.'
+    PROMPT = f'You are an expert researcher who is looking to answer this query: "{claim}". Given these sources as links:\n\n{urls_join}\n\nCan you rank them based on legitimacy of the source, and relevance to the query, and output a string with each link, its legitimacy, and relevance like this:\n\n**link**\n**Legitimacy: 8**\n**Relevance: 7**'
 
     retrieved_urls = []
     legitimacy_ratings = []
@@ -38,13 +42,21 @@ def verify_sources(claim, urls):
             if re.search(r'\*\*legitimacy', r, re.IGNORECASE):
                 legitimacy_ratings.append(int(r.split(':')[1].replace('*', '').strip()))
             elif re.search(r'\*\*relevance', r, re.IGNORECASE):
-                relevance_ratings.append(int(r.split(':')[1].replace('*', '').strip()))
+                relevance_ratings.append(int(r.split(':')[1].replace('*', '').split()[0].strip()))
             else:
-                retrieved_urls.append(r)
+                for split_r in r.split('**'):
+                    if re.search(r'http', split_r, re.IGNORECASE):
+                        retrieved_urls.append(split_r)
+                        break
 
     sorted_sources = []
-    for i in range(len(retrieved_urls)):
-        sorted_sources.append(((legitimacy_ratings[i] + relevance_ratings[i]) // 2, retrieved_urls[i]))
+    try:
+        for i in range(len(retrieved_urls)):
+            sorted_sources.append(((legitimacy_ratings[i] + relevance_ratings[i]) // 2, retrieved_urls[i]))
+    except:
+        print(response)
+        print(retrieved_urls, legitimacy_ratings, relevance_ratings)
+        input()
     sorted_sources = sorted(sorted_sources)[::-1]
     return sorted_sources
 

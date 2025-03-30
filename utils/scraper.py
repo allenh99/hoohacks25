@@ -10,7 +10,7 @@ class Scraper:
         self.user_agent = os.getenv('USER_AGENT')
         self.visited = {}
 
-    def scrape(self, url, selenium, min_load=100):
+    def scrape(self, url, selenium_flag, min_load=100):
         if url in self.visited: return self.visited[url]
         url = self.clean_url(url)
 
@@ -21,7 +21,7 @@ class Scraper:
 
         # If javascript is required, scrape with selenium
 
-        if selenium and re.search('enable javascript', ''.join([s.lower() for s in text])) or len(''.join(text)) < min_load:
+        if selenium_flag and re.search('enable javascript', ''.join([s.lower() for s in text])) or len(''.join(text)) < min_load:
             print('Using selenium on', url)
             text = self.selenium_scrape(url, text_format=True)
         
