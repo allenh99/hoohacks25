@@ -22,6 +22,8 @@ def generate_links(query, num_links):
     for r in response.split('\n'):
         for split_r in r.split():
             if re.search('http', split_r, re.IGNORECASE):
+                if split_r[-1] == '/':
+                    split_r = split_r[:-1]
                 links.append(split_r)
                 break
     return links
@@ -63,7 +65,7 @@ def verify_sources(claim, urls):
 def classify_claim(query, context):
     c = Chatbot()
     CONTEXT = f'You are an LLM that helps figure out if a claim is false or not given some context.'
-    PROMPT = f'Given the following context: \n\n {context} \n\n Is the following claim correct: {query}? Output \'Correct\' or \'Incorrect\', do not provide any commentary.'
+    PROMPT = f'Given the following context:\n\n{context}\n\n Is the following claim correct: {query}? Output \'Correct\' or \'Incorrect\', do not provide any commentary.'
 
     response = c.response(PROMPT, CONTEXT)
     return response
@@ -74,6 +76,8 @@ def clean_and_analyze_sources(query, urls, top_depth):
     for rating, url in urls:
         if len(top_sources) >= top_depth: break
         url_base = url.split('//')[1].split('/')[0]
+        if re.match('www.', url_base):
+            url_base = url_base[4:]
         if url_base not in seen_base:
             seen_base.add(url_base)
             top_sources.append(url)
