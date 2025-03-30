@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from utils import run
 
 app = Flask(__name__)
 
@@ -8,11 +9,15 @@ def analyze():
     if not request.is_json:
         return jsonify({"error": "Invalid input, expected JSON"}), 400
 
+    if textdata is None:
+        return jsonify({"error": "Missing 'text' field"})
+    
     data = request.get_json()
     textdata = data['text']
-    print(textdata)
+    label,links = run.main(textdata)
     response = {
-        "response": data['text'],
+        "response": label,
+        "links": links
     }
     #print(response)
     return jsonify(response), 200
