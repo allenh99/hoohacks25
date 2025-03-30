@@ -5,6 +5,7 @@ import React from 'react'
 function App() {
   const [highlighted, setHighlighted] = useState("");
   const [result, setResult] = useState("");
+  const [typedResult, setTypedResult] = useState("");
   const [loading, setLoading] = useState(false);
 
   const word = "Result:"
@@ -41,11 +42,30 @@ function App() {
     analyze(); //call fetch function
   }, [highlighted]);
 
+  useEffect(() => {
+    if (!result) return;
 
+    setTypedResult("");
+    let i = 0;
+    let message="";
+    const interval = setInterval(() => {
+      if (i >= result.length) {
+        clearInterval(interval);
+        return;
+      }
+      message += result[i];
+      setTypedResult(message);
+      //setTypedResult((prev) => prev + result.charAt(i));
+      //console.log("I:", i, result.charAt(i));
+      i++;
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [result]);
 
   return (
     <div className="w-[320px] p-4 font-sans text-sm text-gray-800 bg-white">
-      <h1 className="text-lg font-semibold mb-2 text-blue-700">Bias Analyzer</h1>
+      <h1 className="text-lg font-semibold mb-2 text-blue-700">Facts Analyzer</h1>
 
       <div className="mb-3">
         <p className="text-xs text-gray-500 mb-1">Highlighted Text:</p>
@@ -56,7 +76,7 @@ function App() {
 
       {loading && <p className="text-xs text-blue-600">Analyzing...</p>}
 
-      {result && !loading && (
+      {typedResult && !loading && (
         <div className="border-t pt-3 mt-2">
           <h2 className="text-sm font-medium text-green-700 flex items-center gap-1">
             {word.split("").map((char, i) => (
@@ -70,7 +90,7 @@ function App() {
             ))}          
           </h2>
           <p className="mt-2 bg-green-50 text-green-900 p-3 rounded text-sm">
-            {result}
+            {typedResult}
           </p>
         </div>
       )}
