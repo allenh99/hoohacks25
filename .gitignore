@@ -1,6 +1,1 @@
 .env
-test*
-__pycache__
-venv
-utils/__pycache__
-utils/Chrome
