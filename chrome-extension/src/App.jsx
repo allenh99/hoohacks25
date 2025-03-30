@@ -103,7 +103,7 @@ function App() {
   }
 
   return (
-    <div className="w-[800px] h-[500px] max-w-full p-4 font-sans text-sm text-gray-800 bg-white">
+    <div className={`w-[1000px] ${submitted ? "h-[500px]" : "h-[300px]"} max-w-full p-4 font-sans text-sm text-gray-800 bg-white`}>
       <h1 className="text-lg font-semibold mb-2 text-blue-700">{typedTitle}</h1>
 
       <div className="flex items-center justify-center w-full">
