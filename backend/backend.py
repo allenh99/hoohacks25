@@ -8,12 +8,11 @@ def analyze():
     #print(request)
     if not request.is_json:
         return jsonify({"error": "Invalid input, expected JSON"}), 400
-
-    if textdata is None:
-        return jsonify({"error": "Missing 'text' field"})
     
     data = request.get_json()
     textdata = data['text']
+    if textdata is None:
+        return jsonify({"error": "Missing 'text' field"})
     label,links = run.main(textdata)
     response = {
         "response": label,
