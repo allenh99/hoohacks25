@@ -13,10 +13,12 @@ def analyze():
     textdata = data['text']
     if textdata is None:
         return jsonify({"error": "Missing 'text' field"})
-    label,links = run.main(textdata)
+    label,sources,analysis,ratings = run.main(textdata)
     response = {
-        "response": label,
-        "links": links
+        "label": label,
+        "sources":sources,
+        "analysis": analysis,
+        "ratings":ratings
     }
     #print(response)
     return jsonify(response), 200
