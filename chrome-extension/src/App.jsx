@@ -15,7 +15,7 @@ function App() {
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const title = "Facts Analyzer";
+  const title = "CheckMate";
 
   useEffect(() => {
     if (chrome?.storage?.local) {
@@ -108,7 +108,7 @@ function App() {
     }, []);
   
     return (
-      <span className="text-blue-500 font-medium tracking-wide">
+      <span className="text-emerald-600 font-medium tracking-wide">
         Analyzing{dotStates[dotCount]}
       </span>
     );
@@ -116,7 +116,7 @@ function App() {
 
   return (
     <div className={`w-[1000px] ${submitted || prevData ? "h-[500px]" : "h-[300px]"} max-w-full p-4 font-sans text-sm text-gray-800 bg-white`}>
-      <h1 className="text-lg font-semibold mb-2 text-blue-700">{typedTitle}</h1>
+      <h1 className="text-lg font-semibold mb-2 text-green-600">{typedTitle}</h1>
 
       <div className="flex items-center justify-center w-full">
         <WeightToggle onChange={setWeight} />
@@ -132,7 +132,7 @@ function App() {
       {!submitted && (
         <button
           onClick={analyze}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 transition duration-200 w-full font-medium text-sm mb-4"
+          className="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600 transition duration-200 w-full font-medium text-sm mb-4"
         >
           Analyze
         </button>
@@ -141,7 +141,7 @@ function App() {
       {prevData && (
         <div className="mt-4">      
           Past Results:  
-          <div className="flex flex-wrap items-center justify-center bg-blue-100 border border-blue-300 text-blue-800 p-3 rounded-md mb-4 text-sm font-semibold">
+          <div className="flex flex-wrap items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 p-3 rounded-md mb-4 text-sm font-semibold">
             {result.label.split("").map((char, i) => (
               <span
                 key={i}
@@ -160,7 +160,7 @@ function App() {
                 className="rounded-xl bg-white shadow-md p-4 border border-gray-200 text-sm"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-blue-600 font-semibold underline">
+                  <h3 className="text-green-500 font-semibold underline">
                     <a
                       href={result.sources[i]}
                       target="_blank"
@@ -194,7 +194,7 @@ function App() {
       {result && !loading && !prevData && (
         <div className="mt-4">      
           Results:  
-          <div className="flex flex-wrap items-center justify-center bg-blue-100 border border-blue-300 text-blue-800 p-3 rounded-md mb-4 text-sm font-semibold">
+          <div className="flex flex-wrap items-center justify-center bg-emerald-100 border border-emerald-300 text-emerald-700 p-3 rounded-md mb-4 text-sm font-semibold">
             {result.label.split("").map((char, i) => (
               <span
                 key={i}
@@ -213,7 +213,7 @@ function App() {
                 className="rounded-xl bg-white shadow-md p-4 border border-gray-200 text-sm"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-blue-600 font-semibold underline">
+                  <h3 className="text-green-500 font-semibold underline">
                     <a
                       href={result.sources[i]}
                       target="_blank"
