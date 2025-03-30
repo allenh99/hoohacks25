@@ -12,7 +12,12 @@ def main(claim, weight='medium'):
     elif weight == 'heavy':
         num_queries, num_links, num_sources, selenium_flag, rag = 6, 7, 5, True, True
     else:
-        num_queries, num_links, num_sources, selenium_flag, rag = 2, 3, 3, False, False
+        num_sources = 3
+        response, sources = generate_sources(claim)
+        label = classify_claim(claim, response)
+        verified_links = verify_sources(claim, sources)
+        sources, analysis, ratings = clean_and_analyze_sources(claim, verified_links, num_sources)
+        return label, sources, analysis, ratings
     
     queries = generate_queries(claim, num_queries)
     queries.append(claim)

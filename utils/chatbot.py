@@ -8,7 +8,7 @@ class Chatbot:
             base_url=os.getenv("PERPLEXITY_API_ENDPOINT"),
         )
 
-    def response(self, prompt, context=''):
+    def response(self, prompt, context='', sources=False):
         response = self.client.chat.completions.create(
             model="sonar",
             messages=[
@@ -16,4 +16,6 @@ class Chatbot:
                 {"role": "user", "content": prompt}
             ],
         )
+        if sources:
+            return response.choices[0].message.content.strip(), response.citations
         return response.choices[0].message.content.strip()
