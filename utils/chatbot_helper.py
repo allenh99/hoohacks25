@@ -12,7 +12,7 @@ def generate_sources(claim):
 def classify_claim(claim, response):
     c = Chatbot()
     CONTEXT = f'You are an assistant that helps a user fact check certain claims.'
-    PROMPT = f'Given this claim:\n\n{claim}\n\nand this response\n\n{response}\n\nIs the claim correct, incorrect, misleading, exaggerating, or partially correct? Only output \'Correct\', \'Incorrect\', \'Partially Correct\', \'Misleading\', or \'Exaggerating\'.'
+    PROMPT = f'Given this claim:\n\n{claim}\n\nand this response\n\n{response}\n\nClassify the claim as correct, incorrect, misleading, exaggerating, or partially correct. Only output \'Correct\', \'Incorrect\', \'Partially Correct\', \'Misleading\', or \'Exaggerating\'.'
 
     response = c.response(PROMPT, CONTEXT)
     return response
@@ -62,7 +62,7 @@ def verify_sources(claim, urls):
         if not re.search(r'\*\*legitimacy', rating, re.IGNORECASE): continue
         for r in rating.split('\n'):
             if re.search(r'\*\*legitimacy', r, re.IGNORECASE):
-                legitimacy_ratings.append(int(r.split(':')[1].replace('*', '').strip()))
+                legitimacy_ratings.append(int(r.split(':')[1].replace('*', '').split()[0].strip()))
             elif re.search(r'\*\*relevance', r, re.IGNORECASE):
                 relevance_ratings.append(int(r.split(':')[1].replace('*', '').split()[0].strip()))
             else:
