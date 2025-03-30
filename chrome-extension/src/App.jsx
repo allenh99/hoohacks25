@@ -8,6 +8,8 @@ function App() {
   const [typedResult, setTypedResult] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   const word = "Result:"
 
   useEffect(() => {
@@ -23,6 +25,8 @@ function App() {
 
     const analyze = async () => {
       setLoading(true);
+      await sleep(5000); // for testing loading animation
+
       try {
         const res = await fetch("http://127.0.0.1:8000/api/analyze/", {
           method: "POST",
@@ -63,6 +67,26 @@ function App() {
     return () => clearInterval(interval);
   }, [result]);
 
+
+  function LoadingDots() {
+    const [dotCount, setDotCount] = useState(0);
+    const dotStates = ["", ".", "..", "..."];
+  
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setDotCount((prev) => (prev + 1) % dotStates.length);
+      }, 300);
+  
+      return () => clearInterval(interval);
+    }, []);
+  
+    return (
+      <span className="text-blue-500 font-medium tracking-wide">
+        Analyzing{dotStates[dotCount]}
+      </span>
+    );
+  }
+
   return (
     <div className="w-[320px] p-4 font-sans text-sm text-gray-800 bg-white">
       <h1 className="text-lg font-semibold mb-2 text-blue-700">Facts Analyzer</h1>
@@ -74,7 +98,7 @@ function App() {
         </div>
       </div>
 
-      {loading && <p className="text-xs text-blue-600">Analyzing...</p>}
+      {loading && <LoadingDots />}
 
       {typedResult && !loading && (
         <div className="border-t pt-3 mt-2">
