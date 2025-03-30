@@ -96,15 +96,15 @@ function App() {
     <div className="w-[800px] h-[500px] max-w-full p-4 font-sans text-sm text-gray-800 bg-white">
       <h1 className="text-lg font-semibold mb-2 text-blue-700">Facts Analyzer</h1>
 
+      <div className="flex items-center justify-center w-full">
+        <WeightToggle onChange={setWeight} />
+      </div>
+
       <div className="mb-3">
         <p className="text-xs text-gray-500 mb-1">Highlighted Text:</p>
         <div className="border rounded bg-gray-100 p-2 h-[80px] overflow-y-auto text-gray-700 text-sm">
           {highlighted || <span className="text-gray-400">No text selected yet</span>}
         </div>
-      </div>
-
-      <div className="flex items-center justify-center w-full">
-        <WeightToggle onChange={setWeight} />
       </div>
 
       {loading && <LoadingDots />}
