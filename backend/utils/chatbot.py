@@ -10,7 +10,7 @@ class Chatbot:
 
     def response(self, prompt, context=''):
         response = self.client.chat.completions.create(
-            model="sonar-pro",
+            model="sonar",
             messages=[
                 {"role": "system", 'content': context},
                 {"role": "user", "content": prompt}
