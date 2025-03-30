@@ -1,17 +1,16 @@
 import os
-from openai import AzureOpenAI
+from openai import OpenAI
 
 class Chatbot:
     def __init__(self):
-        self.client = AzureOpenAI(
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
-            api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-            azure_endpoint=os.getenv("AZURE_OPENAI_API_ENDPOINT")
+        self.client = OpenAI(
+            api_key=os.getenv("PERPLEXITY_API_KEY"),
+            base_url=os.getenv("PERPLEXITY_API_ENDPOINT"),
         )
 
     def response(self, prompt, context=''):
         response = self.client.chat.completions.create(
-            model="gpt-4o",
+            model="sonar",
             messages=[
                 {"role": "system", 'content': context},
                 {"role": "user", "content": prompt}
