@@ -1,6 +1,30 @@
 import re
 from .chatbot import Chatbot
 
+def generate_sources(claim):
+    c = Chatbot()
+    CONTEXT = f'You are an assistant that helps a user fact check certain claims.'
+    PROMPT = f'Fact check this: {claim}'
+
+    response, sources = c.response(PROMPT, CONTEXT, sources=True)
+    return response, sources
+
+def classify_claim(claim, response):
+    c = Chatbot()
+    CONTEXT = f'You are an assistant that helps a user fact check certain claims.'
+    PROMPT = f'Given this claim:\n\n{claim}\n\nand this response\n\n{response}\n\nIs the claim correct, incorrect, misleading, exaggerating, or partially correct? Only output \'Correct\', \'Incorrect\', \'Partially Correct\', \'Misleading\', or \'Exaggerating\'.'
+
+    response = c.response(PROMPT, CONTEXT)
+    return response
+
+def clean_url(url):
+    for split_r in url.replace('[', ' ').replace(']', ' ').split():
+        if re.search('http', split_r, re.IGNORECASE):
+            if split_r[-1] == '/':
+                split_r = split_r[:-1]
+            return split_r
+    return ''
+
 def generate_queries(claim, num_queries):
     c = Chatbot()
     CONTEXT = f'You are an LLM that helps a user find more information about a certain topic.'
@@ -19,8 +43,9 @@ def generate_links(query, num_links):
     
     links = []
     response = c.response(PROMPT, CONTEXT)
-    for r in response.split('\n'):
-        if r: links.append(r)
+    for url in response.split('\n'):
+        url = clean_url(url)
+        if url: links.append(url)
     return links
 
 def verify_sources(claim, urls):
@@ -39,20 +64,28 @@ def verify_sources(claim, urls):
             if re.search(r'\*\*legitimacy', r, re.IGNORECASE):
                 legitimacy_ratings.append(int(r.split(':')[1].replace('*', '').strip()))
             elif re.search(r'\*\*relevance', r, re.IGNORECASE):
-                relevance_ratings.append(int(r.split(':')[1].replace('*', '').strip()))
+                relevance_ratings.append(int(r.split(':')[1].replace('*', '').split()[0].strip()))
             else:
-                retrieved_urls.append(r)
+                for split_r in r.split('**'):
+                    if re.search(r'http', split_r, re.IGNORECASE):
+                        retrieved_urls.append(split_r)
+                        break
 
     sorted_sources = []
-    for i in range(len(retrieved_urls)):
-        sorted_sources.append(((legitimacy_ratings[i] + relevance_ratings[i]) // 2, retrieved_urls[i]))
+    try:
+        for i in range(len(retrieved_urls)):
+            sorted_sources.append(((legitimacy_ratings[i] + relevance_ratings[i]) // 2, retrieved_urls[i]))
+    except:
+        print(response)
+        print(retrieved_urls, legitimacy_ratings, relevance_ratings)
+        input()
     sorted_sources = sorted(sorted_sources)[::-1]
     return sorted_sources
 
 def classify_claim(query, context):
     c = Chatbot()
     CONTEXT = f'You are an LLM that helps figure out if a claim is false or not given some context.'
-    PROMPT = f'Given the following context: \n\n {context} \n\n Is the following claim correct: {query}? Output \'Correct\' or \'Incorrect\', do not provide any commentary.'
+    PROMPT = f'Given the following context:\n\n{context}\n\n Is the following claim correct: {query}? Output \'Correct\' or \'Incorrect\', do not provide any commentary.'
 
     response = c.response(PROMPT, CONTEXT)
     return response
@@ -61,17 +94,20 @@ def clean_and_analyze_sources(query, urls, top_depth):
     top_sources, top_ratings, top_analysis = [], [], []
     seen_base = set()
     for rating, url in urls:
+        url = clean_url(url)
         if len(top_sources) >= top_depth: break
         url_base = url.split('//')[1].split('/')[0]
+        if re.match('www.', url_base):
+            url_base = url_base[4:]
         if url_base not in seen_base:
             seen_base.add(url_base)
             top_sources.append(url)
             top_ratings.append(rating)
     
     c = Chatbot()
-    CONTEXT = f'You are an LLM analyzes a link and creates a summary for how the link might help provide more information on a query.'
+    CONTEXT = f'You are an expert researcher looking into this claim: {query}'
     for url in top_sources:
-        PROMPT = f'What information could the following link: {url} \n provide in discussing the following query: {query}? Only point out how the source is relevant, omit any negative details about the source.'
+        PROMPT = f'Given this source as a link:\n\n{url}\n\nCan you give a 1-2 sentence analysis about this link, like this: \n\n**Analysis: ...**'
         response = c.response(PROMPT, CONTEXT)
         top_analysis.append(response)
     

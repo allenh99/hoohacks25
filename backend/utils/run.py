@@ -8,11 +8,16 @@ from .rag import *
 
 def main(claim, weight='medium'):
     if weight == 'medium':
-        num_queries, num_links, num_sources, selenium, rag = 4, 5, 3, True, False
+        num_queries, num_links, num_sources, selenium_flag, rag = 4, 5, 3, True, False
     elif weight == 'heavy':
-        num_queries, num_links, num_sources, selenium, rag = 6, 7, 5, True, True
+        num_queries, num_links, num_sources, selenium_flag, rag = 6, 7, 5, True, True
     else:
-        num_queries, num_links, num_sources, selenium, rag = 2, 3, 3, False, False
+        num_sources = 3
+        response, sources = generate_sources(claim)
+        label = classify_claim(claim, response)
+        verified_links = verify_sources(claim, sources)
+        sources, analysis, ratings = clean_and_analyze_sources(claim, verified_links, num_sources)
+        return label, sources, analysis, ratings
     
     queries = generate_queries(claim, num_queries)
     queries.append(claim)
@@ -27,7 +32,7 @@ def main(claim, weight='medium'):
     s = Scraper()
     context = ''
     for r, l in verified_links[:10]:
-        context += s.scrape(l, selenium)
+        context += s.scrape(l, selenium_flag)
 
     context = context[:20000]
     if rag:
