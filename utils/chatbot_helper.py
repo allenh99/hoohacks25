@@ -1,10 +1,10 @@
 import re
 from .chatbot import Chatbot
 
-def generate_queries(claim):
+def generate_queries(claim, num_queries):
     c = Chatbot()
     CONTEXT = f'You are an LLM that helps a user find more information about a certain topic.'
-    PROMPT = f'Generate me five queries that I could search to find some more information to verify or disprove this claim: {claim}. For example, given the query: \"Rivian made more profit than Apple last year\", output:\n1. Rivian\' profit last year\n2. Apple profit last year\n\n Follow the format in the example, and do not provide commentary.'
+    PROMPT = f'Generate me {num_queries} queries that I could search to find some more information to verify or disprove this claim: {claim}. For example, given the query: \"Rivian made more profit than Apple last year\", output:\n1. Rivian\' profit last year\n2. Apple profit last year\n\n Follow the format in the example, and do not provide commentary.'
 
     queries = []
     response = c.response(PROMPT, CONTEXT)
@@ -12,10 +12,10 @@ def generate_queries(claim):
         queries.append(q)
     return queries
 
-def generate_links(query):
+def generate_links(query, num_links):
     c = Chatbot()
     CONTEXT = f'You are an LLM that generates links to help a user learn more about a certain topic.'
-    PROMPT = f'Generate me five links that I could use to find some more information about {query}. Do not provide commentary, only the links without any bullet points.'
+    PROMPT = f'Generate me {num_links} links that I could use to find some more information about {query}. Do not provide commentary, only the links without any bullet points.'
     
     links = []
     response = c.response(PROMPT, CONTEXT)
@@ -32,7 +32,6 @@ def verify_sources(claim, urls):
     legitimacy_ratings = []
     relevance_ratings = []
     response = c.response(PROMPT, CONTEXT)
-    print(response)
     for rating in response.split('\n\n'):
         if not re.search(r'\*\*legitimacy', rating, re.IGNORECASE): continue
         for r in rating.split('\n'):
@@ -42,10 +41,6 @@ def verify_sources(claim, urls):
                 relevance_ratings.append(int(r.split(':')[1].replace('*', '').strip()))
             else:
                 retrieved_urls.append(r)
-    
-    print(retrieved_urls, len(retrieved_urls))
-    print(legitimacy_ratings, len(legitimacy_ratings))
-    print(relevance_ratings, len(relevance_ratings))
 
     sorted_sources = []
     for i in range(len(retrieved_urls)):
@@ -61,11 +56,11 @@ def classify_claim(query, context):
     response = c.response(PROMPT, CONTEXT)
     return response
 
-def clean_and_analyze_sources(query, urls):
+def clean_and_analyze_sources(query, urls, top_depth):
     top_sources, top_ratings, top_analysis = [], [], []
     seen_base = set()
     for rating, url in urls:
-        if len(top_sources) >= 3: break
+        if len(top_sources) >= top_depth: break
         url_base = url.split('//')[1].split('/')[0]
         if url_base not in seen_base:
             seen_base.add(url_base)

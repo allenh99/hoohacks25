@@ -1,7 +1,7 @@
-import requests, re, os, urllib.request, ssl, time
+import requests, re, os, time
 from unidecode import unidecode
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 
@@ -10,7 +10,7 @@ class Scraper:
         self.user_agent = os.getenv('USER_AGENT')
         self.visited = {}
 
-    def scrape(self, url, min_load=100, names=False):
+    def scrape(self, url, selenium, min_load=100):
         if url in self.visited: return self.visited[url]
         url = self.clean_url(url)
 
@@ -21,12 +21,12 @@ class Scraper:
 
         # If javascript is required, scrape with selenium
 
-        if re.search('enable javascript', ''.join([s.lower() for s in text])) or len(''.join(text)) < min_load:
+        if selenium and re.search('enable javascript', ''.join([s.lower() for s in text])) or len(''.join(text)) < min_load:
             print('Using selenium on', url)
             text = self.selenium_scrape(url, text_format=True)
         
         
-        text = '. '.join([i for i in self.remove_junk(text, names) if i])
+        text = '. '.join([i for i in self.remove_junk(text) if i])
         self.visited[url] = text
         return text
 
@@ -61,7 +61,6 @@ class Scraper:
                 text = soup.get_text('\n').split('\n')
                 return text
             except:
-                time.sleep(5)
                 retries -= 1
         return []
 
@@ -155,7 +154,7 @@ class Scraper:
         
         return url
         
-    def remove_junk(self, text, names):
+    def remove_junk(self, text):
         blacklist = [
             'copyright',
             'last updated',
@@ -220,7 +219,7 @@ class Scraper:
             #   has more than 4 words
             #   is not html
             # Add it but remove punctuation
-            if flag and (len(s.split()) > 4 or names) and (s[0] != '<' and s[-1] != '>'):
+            if flag and (s[0] != '<' and s[-1] != '>'):
                 s = ' '.join(s.split())
                 if len(s) == 0:
                     continue
