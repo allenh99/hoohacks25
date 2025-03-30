@@ -1,0 +1,19 @@
+.env
+test*
+utils/__pycache__
+__pycache__
+venv
+
+# dependencies
+node_modules/
+
+# Vite/Webpack build output
+dist/
+build/
+
+# system files
+.DS_Store
+
+# IDE/editor files
+.vscode/
+*.log
