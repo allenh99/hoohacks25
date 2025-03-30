@@ -9,6 +9,7 @@ function App() {
   const [typedTitle, setTypedTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [weight, setWeight] = useState("light");
+  const [openDropdowns, setOpenDropdowns] = useState([]);
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -44,7 +45,7 @@ function App() {
 
     const analyze = async () => {
       setLoading(true);
-      await sleep(5000); // for testing loading animation
+      // await sleep(5000); // for testing loading animation
 
       try {
         const res = await fetch("http://127.0.0.1:8000/api/analyze/", {
@@ -68,6 +69,18 @@ function App() {
 
     analyze(); //call fetch function
   }, [highlighted]);
+
+  useEffect(() => {
+    if (result?.ratings?.length) {
+      setOpenDropdowns(Array(result.ratings.length).fill(false));
+    }
+  }, [result]);
+
+  const toggleDropdown = (index) => {
+    setOpenDropdowns((prev) =>
+      prev.map((isOpen, i) => (i === index ? !isOpen : isOpen))
+    );
+  };
 
   function LoadingDots() {
     const [dotCount, setDotCount] = useState(0);
@@ -106,39 +119,40 @@ function App() {
       {loading && <LoadingDots />}
 
       {result && !loading &&(
-        <div className="mt-4 space-y-3 text-sm text-gray-800">
-          <div className="text-lg font-semibold text-blue-700">
-            Label: <span className="text-black">{result.label}</span>
-          </div>
-      
-          <div>
-            <p className="font-medium text-gray-600">Ratings:</p>
-            <ul className="list-disc pl-5 text-gray-700">
-              {result.ratings.map((rating, i) => (
-                <li key={i}>{rating}</li>
-              ))}
-            </ul>
-          </div>
-      
-          <div>
-            <p className="font-medium text-gray-600">Analysis:</p>
-            <ul className="list-disc pl-5 text-gray-700">
-              {result.analysis.map((point, i) => (
-                <li key={i}>{point}</li>
-              ))}
-            </ul>
-          </div>
-      
-          <div>
-            <p className="font-medium text-gray-600">Sources:</p>
-            <ul className="list-disc pl-5 text-blue-600 underline">
-              {result.sources.map((url, i) => (
-                <li key={i}>
-                  <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <div className="grid grid-cols-1 gap-4 mt-4">
+          {result.ratings.map((rating, i) => (
+            <div
+              key={i}
+              className="rounded-xl bg-white shadow-md p-4 border border-gray-200 text-sm"
+            >
+              <h3 className="text-blue-600 font-semibold mb-2">Source {i + 1}</h3>
+
+              <p className="mb-1">
+                <span className="font-medium text-gray-600">Rating:</span>{" "}
+                {rating}
+              </p>
+
+              <p className="text-blue-500 underline break-all">
+                <a
+                  href={result.sources[i]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {result.sources[i]}
+                </a>
+              </p>
+
+              <button onClick={() => toggleDropdown(i)}>
+                {openDropdowns[i] ? "Hide": "Show"}
+              </button>
+
+              {openDropdowns[i] && (<p className="mb-1">
+                <span className="font-medium text-gray-600">Analysis:</span>{" "}
+                  {result.analysis[i]}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
