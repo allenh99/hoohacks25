@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import "./popup.css";
-import React from 'react'
+import React from 'react';
+import WeightToggle from "./WeightToggle";
 
 function App() {
   const [highlighted, setHighlighted] = useState("");
   const [result, setResult] = useState("");
   const [typedResult, setTypedResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [weight, setWeight] = useState("light");
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -31,7 +33,10 @@ function App() {
         const res = await fetch("http://127.0.0.1:8000/api/analyze/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: highlighted })
+          body: JSON.stringify({ 
+            text: highlighted,
+            weight: weight
+          })
         });
         const data = await res.json();
         //setResult(JSON.stringify(data, null, 2));
@@ -88,7 +93,7 @@ function App() {
   }
 
   return (
-    <div className="w-[320px] p-4 font-sans text-sm text-gray-800 bg-white">
+    <div className="w-[800px] h-[500px] max-w-full p-4 font-sans text-sm text-gray-800 bg-white">
       <h1 className="text-lg font-semibold mb-2 text-blue-700">Facts Analyzer</h1>
 
       <div className="mb-3">
@@ -96,6 +101,10 @@ function App() {
         <div className="border rounded bg-gray-100 p-2 h-[80px] overflow-y-auto text-gray-700 text-sm">
           {highlighted || <span className="text-gray-400">No text selected yet</span>}
         </div>
+      </div>
+
+      <div className="flex items-center justify-center w-full">
+        <WeightToggle onChange={setWeight} />
       </div>
 
       {loading && <LoadingDots />}
